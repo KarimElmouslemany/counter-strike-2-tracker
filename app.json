@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "ConterStrikeTracker",
     "name": "counter-strike-2-tracker",
     "slug": "counter-strike-2-tracker",
     "version": "1.0.0",
@@ -24,6 +25,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": ["expo-router"]
   }
 }
