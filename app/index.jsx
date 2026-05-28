@@ -10,7 +10,9 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { Link } from "expo-router";
 import { colors } from "../color_Assests/Color";
+
 const Home = () => {
+
   return (
     <ScrollView>
       <View style={styles.Container}>
