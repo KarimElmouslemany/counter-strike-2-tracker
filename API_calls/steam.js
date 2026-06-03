@@ -26,6 +26,15 @@ const weaponList = [
   { id: "xm1014", name: "XM1014" },
   { id: "knife", name: "Knife" },
 ];
+
+const mapList = [
+  { id: "de_dust2", name: "Dust 2" },
+  { id: "de_inferno", name: "Inferno" },
+  { id: "de_nuke", name: "Nuke" },
+  { id: "de_train", name: "Train" },
+  { id: "de_vertigo", name: "Vertigo" },
+  { id: "cs_office", name: "Office" },
+];
 const playerInfo = {
   overview: {
     kills: 0,
@@ -68,7 +77,7 @@ async function getuserInfo(API_Key, url) {
   }
   return Player_info;
 }
-function user_info_simple_display(user_info) {
+function getting_users_overview_data(user_info) {
   for (s of user_info) {
     if (s.name === "total_shots_fired") {
       total_shots_fired = s.value;
@@ -92,7 +101,7 @@ function user_info_simple_display(user_info) {
     if (s.name === "total_mvps") {
       playerInfo.overview.mvps = s.value;
     }
-    if (s.name === "total_wins") {
+    if (s.name === "total_matches_won") {
       playerInfo.overview.wins = s.value;
     }
     if (s.name === "total_damage_done") {
@@ -123,13 +132,10 @@ function user_info_simple_display(user_info) {
   metrics_needed_for_calculation(totalhits, total_shots_fired);
 }
 function metrics_needed_for_calculation(totalhits, shots_fired) {
-  playerInfo.overview.kdRatio =
-    playerInfo.overview.kills / playerInfo.overview.deaths;
-  playerInfo.overview.winRate =
-    (playerInfo.overview.wins / playerInfo.overview.matches) * 100;
-  playerInfo.overview.headshotPercent =
-    (playerInfo.combat.headshotKills / playerInfo.overview.kills) * 100;
-  playerInfo.overview.accuracy = (totalhits / total_shots_fired) * 100;
+  playerInfo.overview.kdRatio = (playerInfo.overview.kills / playerInfo.overview.deaths).toFixed(2);
+  playerInfo.overview.winRate = ((playerInfo.overview.wins / playerInfo.overview.matches) *100).toFixed(2)+"%";
+  playerInfo.overview.headshotPercent = ((playerInfo.combat.headshotKills / playerInfo.overview.kills) *100 ).toFixed(2)+"%";
+  playerInfo.overview.accuracy = ((totalhits / total_shots_fired) *100).toFixed(2)+"%";
 }
 function retrieving_weapons(user_info) {
   let t_kills = 0;
@@ -148,8 +154,8 @@ function retrieving_weapons(user_info) {
       if (w.name.includes(`total_hits_${n.id}`)) {
         t_hits = w.value;
       }
-      weapon_accuracy = (t_hits / t_shots) * 100;
-      killShare = (t_kills / playerInfo.overview.kills) * 100;
+      weapon_accuracy = ((t_hits / t_shots) * 100).toFixed(2)+ "%";
+      killShare = ((t_kills / playerInfo.overview.kills) * 100).toFixed(1)+"%";
     }
     playerInfo.weapons.push({
       id: n.id,
@@ -162,11 +168,34 @@ function retrieving_weapons(user_info) {
     });
   }
 
-  console.log(playerInfo);
+  // console.log(playerInfo);
+}
+function retrieving_maps(user_info) {
+  let map_wins;
+  let map_rounds;
+  for (const l of mapList) {
+    for (const m of user_info) {
+      if (m.name === `total_wins_map_${l.id}`) {
+        map_wins = m.value;
+      }
+      if (m.name === `total_rounds_map_${l.id}`) {
+        map_rounds = m.value;
+      }
+    }
+    playerInfo.maps.push({
+      id: l.id,
+      name: l.name,
+      wins: map_wins,
+      rounds: map_rounds,
+      winRate: ((map_wins / map_rounds) * 100).toFixed(1) + "%",
+    });
+  }
 }
 async function main() {
   const user_info = await getuserInfo(API_Key, url);
-  user_info_simple_display(user_info);
+  getting_users_overview_data(user_info);
   retrieving_weapons(user_info);
+  retrieving_maps(user_info);
+  console.log(playerInfo);
 }
 main();
