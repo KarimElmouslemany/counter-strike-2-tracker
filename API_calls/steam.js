@@ -1,7 +1,9 @@
 const API_Key = "0398A494A62EAB4D439E67759FF16A1E";
-const url = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=76561199043122406`;
+const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=76561199043122406`;
+const Image_url = `https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json`;
 let totalhits = 0;
 let total_shots_fired = 0;
+const wepones_images = [];
 const weaponList = [
   { id: "ak47", name: "AK-47" },
   { id: "m4a1", name: "M4A1" },
@@ -66,19 +68,31 @@ const playerInfo = {
     source: 0,
   },
 };
-async function getuserInfo(API_Key, url) {
+async function getuserInfo(API_Key, url_steam) {
   try {
-    const response = await fetch(url);
-    const data = await response.json();
+    const response_steam = await fetch(url_steam);
+    const data = await response_steam.json();
     let Player_info = data.playerstats.stats;
+
     return Player_info;
   } catch (error) {
     error.message;
   }
   return Player_info;
 }
+async function GetImageInfo(url_images) {
+  try {
+    const image_respones = await fetch(url_images);
+    const image_data = await image_respones.json();
+    let Image_info = image_data;
+    return Image_info;
+  } catch (error) {
+    error.message;
+  }
+  return Image_info;
+}
 function getting_users_overview_data(user_info) {
-  for (s of user_info) {
+  for (const s of user_info) {
     if (s.name === "total_shots_fired") {
       total_shots_fired = s.value;
     }
@@ -87,7 +101,6 @@ function getting_users_overview_data(user_info) {
     }
     if (s.name === "total_kills") {
       playerInfo.overview.kills = s.value;
-      totalKills = s.value;
     }
     if (s.name === "total_deaths") {
       playerInfo.overview.deaths = s.value;
@@ -132,17 +145,27 @@ function getting_users_overview_data(user_info) {
   metrics_needed_for_calculation(totalhits, total_shots_fired);
 }
 function metrics_needed_for_calculation(totalhits, shots_fired) {
-  playerInfo.overview.kdRatio = (playerInfo.overview.kills / playerInfo.overview.deaths).toFixed(2);
-  playerInfo.overview.winRate = ((playerInfo.overview.wins / playerInfo.overview.matches) *100).toFixed(2)+"%";
-  playerInfo.overview.headshotPercent = ((playerInfo.combat.headshotKills / playerInfo.overview.kills) *100 ).toFixed(2)+"%";
-  playerInfo.overview.accuracy = ((totalhits / total_shots_fired) *100).toFixed(2)+"%";
+  playerInfo.overview.kdRatio = (
+    playerInfo.overview.kills / playerInfo.overview.deaths
+  ).toFixed(2);
+  playerInfo.overview.winRate =
+    ((playerInfo.overview.wins / playerInfo.overview.matches) * 100).toFixed(
+      2,
+    ) + "%";
+  playerInfo.overview.headshotPercent =
+    (
+      (playerInfo.combat.headshotKills / playerInfo.overview.kills) *
+      100
+    ).toFixed(2) + "%";
+  playerInfo.overview.accuracy =
+    ((totalhits / total_shots_fired) * 100).toFixed(2) + "%";
 }
-function retrieving_weapons(user_info) {
+function retrieving_weapons(user_info, wepones_images) {
   let t_kills = 0;
   let t_hits = 0;
   let t_shots = 0;
   let weapon_accuracy = 0;
-
+  let killShare = 0;
   for (const n of weaponList) {
     for (const w of user_info) {
       if (w.name.includes(`total_shots_${n.id}`)) {
@@ -154,21 +177,70 @@ function retrieving_weapons(user_info) {
       if (w.name.includes(`total_hits_${n.id}`)) {
         t_hits = w.value;
       }
-      weapon_accuracy = ((t_hits / t_shots) * 100).toFixed(2)+ "%";
-      killShare = ((t_kills / playerInfo.overview.kills) * 100).toFixed(1)+"%";
+      weapon_accuracy = ((t_hits / t_shots) * 100).toFixed(2) + "%";
+      killShare =
+        ((t_kills / playerInfo.overview.kills) * 100).toFixed(1) + "%";
     }
-    playerInfo.weapons.push({
-      id: n.id,
-      name: n.name,
-      Kills: t_kills,
-      hits: t_hits,
-      shots: t_shots,
-      accuracy: weapon_accuracy,
-      KillShare: killShare,
-    });
+    if (n.name === "Knife") {
+      playerInfo.weapons.push({
+        id: n.id,
+        name: n.name,
+        Kills: t_kills,
+        hits: t_hits,
+        shots: t_shots,
+        accuracy: weapon_accuracy,
+        KillShare: killShare,
+        image_url: "../images/Knife_cs2.png",
+      });
+        console.log("knife image added");
+        t_kills = 0;
+        t_hits = 0;
+        t_shots = 0;
+        weapon_accuracy = 0;
+        killShare = 0;
+      continue;
+
+    } 
+     if (n.name === "M4A1") {
+      playerInfo.weapons.push({
+        id: n.id,
+        name: n.name,
+        Kills: t_kills,
+        hits: t_hits,
+        shots: t_shots,
+        accuracy: weapon_accuracy,
+        KillShare: killShare,
+        image_url: wepones_images["M4A1-S"].Image,
+      });
+        console.log("M4A1 image added");
+        t_kills = 0;
+        t_hits = 0;
+        t_shots = 0;
+        weapon_accuracy = 0;
+        killShare = 0;
+       continue;
+    
+    }
+    else {
+      playerInfo.weapons.push({
+        id: n.id,
+        name: n.name,
+        Kills: t_kills,
+        hits: t_hits,
+        shots: t_shots,
+        accuracy: weapon_accuracy,
+        KillShare: killShare,
+        image_url: wepones_images[n.name].Image,
+      });
+        t_kills = 0;
+        t_hits = 0;
+        t_shots = 0;
+        weapon_accuracy = 0;
+        killShare = 0;
+    }
   }
 
-  // console.log(playerInfo);
+  console.log(playerInfo.weapons);
 }
 function retrieving_maps(user_info) {
   let map_wins;
@@ -191,11 +263,47 @@ function retrieving_maps(user_info) {
     });
   }
 }
-async function main() {
-  const user_info = await getuserInfo(API_Key, url);
-  getting_users_overview_data(user_info);
-  retrieving_weapons(user_info);
-  retrieving_maps(user_info);
-  console.log(playerInfo);
+
+function storing_images(weapon_image_info) {
+  for (let i = 0; i < weapon_image_info.length; i++) {
+    if (weapon_image_info[i].category.name === "Knives") {
+      continue;
+    }
+    if (weapon_image_info[i].category.name === "Equipment") {
+      continue;
+    }
+    if (weapon_image_info[i].category.name === "C4") {
+      continue;
+    }
+    if (weapon_image_info[i].category.name === "Grenades") {
+      continue;
+    }
+    if (weapon_image_info[i].category.name === "Gloves") {
+      continue;
+    } else {
+      wepones_images[weapon_image_info[i].name] = {
+        Image: weapon_image_info[i].image,
+      };
+    }
+  }
+  return wepones_images;
 }
-main();
+function missing_wepones(wepones_images) {
+  for (const weapon of weaponList) {
+    if (!wepones_images[weapon.name]) {
+      console.log("Missing:", weapon.name);
+    }
+  }
+}
+async function CS2_steam_statues() {
+  const user_info = await getuserInfo(API_Key, url_steam);
+  const weapon_image_info = await GetImageInfo(Image_url);
+
+  const imagesOFWepones = storing_images(weapon_image_info);
+  getting_users_overview_data(user_info)
+  retrieving_weapons(user_info, imagesOFWepones );
+  retrieving_maps(user_info);
+  return playerInfo;
+}
+
+CS2_steam_statues();
