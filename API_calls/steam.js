@@ -161,6 +161,7 @@ function metrics_needed_for_calculation(totalhits, shots_fired) {
     ((totalhits / total_shots_fired) * 100).toFixed(2) + "%";
 }
 function retrieving_weapons(user_info, wepones_images) {
+  playerInfo.weapons = []; // need for when the app is reloaded.
   let t_kills = 0;
   let t_hits = 0;
   let t_shots = 0;
@@ -192,16 +193,15 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: "../images/Knife_cs2.png",
       });
-        console.log("knife image added");
-        t_kills = 0;
-        t_hits = 0;
-        t_shots = 0;
-        weapon_accuracy = 0;
-        killShare = 0;
+      console.log("knife image added");
+      t_kills = 0;
+      t_hits = 0;
+      t_shots = 0;
+      weapon_accuracy = 0;
+      killShare = 0;
       continue;
-
-    } 
-     if (n.name === "M4A1") {
+    }
+    if (n.name === "M4A1") {
       playerInfo.weapons.push({
         id: n.id,
         name: n.name,
@@ -212,16 +212,14 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: wepones_images["M4A1-S"].Image,
       });
-        console.log("M4A1 image added");
-        t_kills = 0;
-        t_hits = 0;
-        t_shots = 0;
-        weapon_accuracy = 0;
-        killShare = 0;
-       continue;
-    
-    }
-    else {
+      console.log("M4A1 image added");
+      t_kills = 0;
+      t_hits = 0;
+      t_shots = 0;
+      weapon_accuracy = 0;
+      killShare = 0;
+      continue;
+    } else {
       playerInfo.weapons.push({
         id: n.id,
         name: n.name,
@@ -232,17 +230,18 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: wepones_images[n.name].Image,
       });
-        t_kills = 0;
-        t_hits = 0;
-        t_shots = 0;
-        weapon_accuracy = 0;
-        killShare = 0;
+      t_kills = 0;
+      t_hits = 0;
+      t_shots = 0;
+      weapon_accuracy = 0;
+      killShare = 0;
     }
   }
 
-  console.log(playerInfo.weapons);
+  // console.log(playerInfo.weapons);
 }
 function retrieving_maps(user_info) {
+  playerInfo.maps = []; // need for when the app is reloaded.
   let map_wins;
   let map_rounds;
   for (const l of mapList) {
@@ -260,6 +259,7 @@ function retrieving_maps(user_info) {
       wins: map_wins,
       rounds: map_rounds,
       winRate: ((map_wins / map_rounds) * 100).toFixed(1) + "%",
+      url_image: `https://raw.githubusercontent.com/MurkyYT/cs2-map-icons/main/images/${l.id}.png`,
     });
   }
 }
@@ -295,15 +295,14 @@ function missing_wepones(wepones_images) {
     }
   }
 }
-async function CS2_steam_statues() {
+export async function CS2_steam_statues() {
   const user_info = await getuserInfo(API_Key, url_steam);
   const weapon_image_info = await GetImageInfo(Image_url);
-
   const imagesOFWepones = storing_images(weapon_image_info);
-  getting_users_overview_data(user_info)
-  retrieving_weapons(user_info, imagesOFWepones );
+  getting_users_overview_data(user_info);
+  retrieving_weapons(user_info, imagesOFWepones);
   retrieving_maps(user_info);
+  console.log(playerInfo.maps);
   return playerInfo;
 }
-
 CS2_steam_statues();
