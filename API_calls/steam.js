@@ -3,6 +3,7 @@ const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForG
 const Image_url = `https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json`;
 let totalhits = 0;
 let total_shots_fired = 0;
+let checker = false;
 const wepones_images = [];
 const weaponList = [
   { id: "ak47", name: "AK-47" },
@@ -68,17 +69,34 @@ const playerInfo = {
     source: 0,
   },
 };
-async function getuserInfo(API_Key, url_steam) {
-  try {
-    const response_steam = await fetch(url_steam);
-    const data = await response_steam.json();
-    let Player_info = data.playerstats.stats;
-
-    return Player_info;
-  } catch (error) {
-    error.message;
+export function checkSteamID(id) {
+  const regex = /^\d{17}$/;
+  console.log("ID:", id);
+  // console.log("Length:", id.length);
+  console.log("Regex:", /^\d{17}$/.test(id));
+  if (!regex.test(id)) {
+    console.log("Steam id needs to be 17 digets number");
+    return {
+      valid: false, 
+      message: "Steam id needs to be 17 digets number" };
+  } else {
+    console.log("nothing wrong here");
+    return {
+      valid: true, 
+      message: "" };
   }
-  return Player_info;
+}
+async function getuserInfo(API_Key, SteamID) {
+  console.log("this the steam ID ", SteamID)
+    const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=76561199043122406`;
+    try {
+      const response_steam = await fetch(url_steam);
+      const data = await response_steam.json();
+      let Player_info = data.playerstats.stats;
+      return Player_info;
+    } catch (error) {
+      error.message;
+}
 }
 async function GetImageInfo(url_images) {
   try {
@@ -193,7 +211,7 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: "../images/Knife_cs2.png",
       });
-      console.log("knife image added");
+      // console.log("knife image added");
       t_kills = 0;
       t_hits = 0;
       t_shots = 0;
@@ -212,7 +230,7 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: wepones_images["M4A1-S"].Image,
       });
-      console.log("M4A1 image added");
+      // console.log("M4A1 image added");
       t_kills = 0;
       t_hits = 0;
       t_shots = 0;
@@ -291,18 +309,23 @@ function storing_images(weapon_image_info) {
 function missing_wepones(wepones_images) {
   for (const weapon of weaponList) {
     if (!wepones_images[weapon.name]) {
-      console.log("Missing:", weapon.name);
+      // console.log("Missing:", weapon.name);
     }
   }
 }
-export async function CS2_steam_statues() {
-  const user_info = await getuserInfo(API_Key, url_steam);
-  const weapon_image_info = await GetImageInfo(Image_url);
-  const imagesOFWepones = storing_images(weapon_image_info);
-  getting_users_overview_data(user_info);
-  retrieving_weapons(user_info, imagesOFWepones);
-  retrieving_maps(user_info);
-  console.log(playerInfo.maps);
-  return playerInfo;
+export async function CS2_steam_statues(SteamID) {
+  let checkerinner = false;
+  checkerinner = checkSteamID();
+  if (checkerinner.valid === true) {
+    const user_info = await getuserInfo(API_Key, SteamID);
+    const weapon_image_info = await GetImageInfo(Image_url);
+    const imagesOFWepones = storing_images(weapon_image_info);
+    getting_users_overview_data(user_info);
+    retrieving_weapons(user_info, imagesOFWepones);
+    retrieving_maps(user_info);
+    return playerInfo;
+  }else{
+    console.log("this is checkerinner is:", checkerinner);
+  }
 }
 CS2_steam_statues();
