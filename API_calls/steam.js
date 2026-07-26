@@ -1,9 +1,10 @@
 const API_Key = "0398A494A62EAB4D439E67759FF16A1E";
-const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=76561199043122406`;
+// const url_steamID_API = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=0398A494A62EAB4D439E67759FF16A1E&vanityurl=`;
 const Image_url = `https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json`;
 let totalhits = 0;
 let total_shots_fired = 0;
 let checker = false;
+ let info;
 const wepones_images = [];
 const weaponList = [
   { id: "ak47", name: "AK-47" },
@@ -69,34 +70,68 @@ const playerInfo = {
     source: 0,
   },
 };
-export function checkSteamID(id) {
+export async function checkSteamID(id) {
   const regex = /^\d{17}$/;
+  const number_Rexgex = /^\d*$/;
   console.log("ID:", id);
-  // console.log("Length:", id.length);
-  console.log("Regex:", /^\d{17}$/.test(id));
-  if (!regex.test(id)) {
-    console.log("Steam id needs to be 17 digets number");
-    return {
-      valid: false, 
-      message: "Steam id needs to be 17 digets number" };
-  } else {
-    console.log("nothing wrong here");
-    return {
-      valid: true, 
-      message: "" };
+  if (!number_Rexgex.test(id)) {
+    info = await FindingsteamID(id);
+    console.log("this is what info returns ", info);
+    CS2_steam_statues(info.ID,info.valid);
+    return;
+  }
+    if (!regex.test(id)) {
+      console.log("Steam id needs to be 17 digets number");
+      return {
+        valid: false,
+        message: "Steam id needs to be 17 digets number",
+      };
+    }
+   else {
+    CS2_steam_statues(id,true);
   }
 }
-async function getuserInfo(API_Key, SteamID) {
-  console.log("this the steam ID ", SteamID)
-    const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=76561199043122406`;
-    try {
-      const response_steam = await fetch(url_steam);
-      const data = await response_steam.json();
-      let Player_info = data.playerstats.stats;
-      return Player_info;
-    } catch (error) {
-      error.message;
+
+async function FindingsteamID(users_url) {
+  const url_steamID_API = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=0398A494A62EAB4D439E67759FF16A1E&vanityurl=${users_url}`;
+  try {
+    const response = await fetch(url_steamID_API);
+    const data = await response.json();
+    let users_ID = data;
+    console.log("this is is what users_ID returns ", users_ID);
+    if (users_ID === undefined) {
+      console.log("something went wrong", users_ID.response.message);
+      return{
+        valid: true,
+        message: "undefined",
+      }
+    }
+    if (users_ID.response.success === 42) {
+      console.log("No match");
+      return { valid: false, message: users_ID.response.message };
+    } else {
+      console.log("user found");
+      return{
+        valid: true,
+        message: "user found",
+        ID: users_ID.response.steamid
+      }
+      // users_ID = "";
+    }
+  } catch (error) {
+    return error.message;
+  }
 }
+async function getuserInfo(SteamID) {
+  const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=${SteamID}`;
+  try {
+    const response_steam = await fetch(url_steam);
+    const data = await response_steam.json();
+    let Player_info = data.playerstats.stats;
+    return Player_info;
+  } catch (error) {
+    error.message;
+  }
 }
 async function GetImageInfo(url_images) {
   try {
@@ -306,26 +341,22 @@ function storing_images(weapon_image_info) {
   }
   return wepones_images;
 }
-function missing_wepones(wepones_images) {
-  for (const weapon of weaponList) {
-    if (!wepones_images[weapon.name]) {
-      // console.log("Missing:", weapon.name);
-    }
-  }
-}
-export async function CS2_steam_statues(SteamID) {
-  let checkerinner = false;
-  checkerinner = checkSteamID();
-  if (checkerinner.valid === true) {
-    const user_info = await getuserInfo(API_Key, SteamID);
+async function CS2_steam_statues(ID,checkerinner) {
+  console.log("this is in CS2_steam_statues the ID is", ID , "and checker is", checkerinner);
+  if (checkerinner === true) {
+    const user_info = await getuserInfo(ID);
     const weapon_image_info = await GetImageInfo(Image_url);
     const imagesOFWepones = storing_images(weapon_image_info);
     getting_users_overview_data(user_info);
     retrieving_weapons(user_info, imagesOFWepones);
     retrieving_maps(user_info);
-    return playerInfo;
-  }else{
+    Sending_User_info()
+  } else {
     console.log("this is checkerinner is:", checkerinner);
   }
 }
-CS2_steam_statues();
+
+export async function Sending_User_info(){
+  // console.log("this is in the Sending_User_info ",playerInfo);
+  return playerInfo;
+}
