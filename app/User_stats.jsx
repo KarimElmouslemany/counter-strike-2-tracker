@@ -8,26 +8,27 @@ import {
   useColorScheme,
   Image,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter,useFocusEffect  } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { colors } from "../color_Assests/Color";
-import { CS2_steam_statues } from "../API_calls/steam";
+import { Sending_User_info } from "../API_calls/steam";
 
 const Home = () => {
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
-  useEffect(() => {
-    // useEffect allows the code to run after the ui has ben rendderd and [] means to only run it once
-    async function loading() {
-      // a async function
-      // console.log("featch started");
-      const player_info = await CS2_steam_statues();
-      //  console.log("featch fiinshed", player_info);
-      getplayer_info(player_info); // added the data to the function getplayer_info which playerinfo will use to dipslay the data.
-    }
-
-    loading(); // runs the function
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      async function loading() {
+        // a async function
+        console.log("featch started");
+        const player_info = await Sending_User_info();
+        console.log("featch fiinshed", player_info);
+        getplayer_info({...player_info}); // added the data to the function getplayer_info which playerinfo will use to dipslay the data.
+      }
+        loading()
+    }, []),
+  
+  );
 
   if (!playerinfo) {
     return <Text>Lodding...</Text>;
