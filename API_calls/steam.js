@@ -4,7 +4,7 @@ const Image_url = `https://raw.githubusercontent.com/ByMykel/CSGO-API/main/publi
 let totalhits = 0;
 let total_shots_fired = 0;
 let checker = false;
- let info;
+let info;
 const wepones_images = [];
 const weaponList = [
   { id: "ak47", name: "AK-47" },
@@ -70,25 +70,42 @@ const playerInfo = {
     source: 0,
   },
 };
+async function extractingProfile(url) {
+  let user_profile_or_ID;
+  if (url.includes("id")) {
+    url = url.split("https://steamcommunity.com/id/");
+    url = url[1];
+    url = url.split("/");
+  } else {
+    url = url.split("https://steamcommunity.com/profiles/");
+    url = url[1];
+    url = url.split("/");
+  }
+  url = url[0];
+  user_profile_or_ID = url;
+  return user_profile_or_ID;
+}
 export async function checkSteamID(id) {
   const regex = /^\d{17}$/;
   const number_Rexgex = /^\d*$/;
   console.log("ID:", id);
   if (!number_Rexgex.test(id)) {
-    info = await FindingsteamID(id);
-    console.log("this is what info returns ", info);
-    CS2_steam_statues(info.ID,info.valid);
-    return;
-  }
-    if (!regex.test(id)) {
-      console.log("Steam id needs to be 17 digets number");
-      return {
-        valid: false,
-        message: "Steam id needs to be 17 digets number",
-      };
+    id = await extractingProfile(id);
+    if (!number_Rexgex.test(id)) {
+      let info = await FindingsteamID(id);
+      console.log("this is what info returns ", info);
+      CS2_steam_statues(info.ID, info.valid);
+      return;
     }
-   else {
-    CS2_steam_statues(id,true);
+  }
+  if (!regex.test(id)) {
+    console.log("Steam id needs to be 17 digets number");
+    return {
+      valid: false,
+      message: "Steam id needs to be 17 digets number",
+    };
+  } else {
+    CS2_steam_statues(id, true);
   }
 }
 
@@ -101,22 +118,21 @@ async function FindingsteamID(users_url) {
     console.log("this is is what users_ID returns ", users_ID);
     if (users_ID === undefined) {
       console.log("something went wrong", users_ID.response.message);
-      return{
+      return {
         valid: true,
         message: "undefined",
-      }
+      };
     }
-    if (users_ID.response.success === 42) {
+    if(users_ID.response.success === 42) {
       console.log("No match");
       return { valid: false, message: users_ID.response.message };
     } else {
       console.log("user found");
-      return{
+      return {
         valid: true,
         message: "user found",
-        ID: users_ID.response.steamid
-      }
-      // users_ID = "";
+        ID: users_ID.response.steamid,
+      };
     }
   } catch (error) {
     return error.message;
@@ -246,7 +262,6 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: "../images/Knife_cs2.png",
       });
-      // console.log("knife image added");
       t_kills = 0;
       t_hits = 0;
       t_shots = 0;
@@ -265,7 +280,6 @@ function retrieving_weapons(user_info, wepones_images) {
         KillShare: killShare,
         image_url: wepones_images["M4A1-S"].Image,
       });
-      // console.log("M4A1 image added");
       t_kills = 0;
       t_hits = 0;
       t_shots = 0;
@@ -290,8 +304,6 @@ function retrieving_weapons(user_info, wepones_images) {
       killShare = 0;
     }
   }
-
-  // console.log(playerInfo.weapons);
 }
 function retrieving_maps(user_info) {
   playerInfo.maps = []; // need for when the app is reloaded.
@@ -341,8 +353,13 @@ function storing_images(weapon_image_info) {
   }
   return wepones_images;
 }
-async function CS2_steam_statues(ID,checkerinner) {
-  console.log("this is in CS2_steam_statues the ID is", ID , "and checker is", checkerinner);
+async function CS2_steam_statues(ID, checkerinner) {
+  console.log(
+    "this is in CS2_steam_statues the ID is",
+    ID,
+    "and checker is",
+    checkerinner,
+  );
   if (checkerinner === true) {
     const user_info = await getuserInfo(ID);
     const weapon_image_info = await GetImageInfo(Image_url);
@@ -350,13 +367,12 @@ async function CS2_steam_statues(ID,checkerinner) {
     getting_users_overview_data(user_info);
     retrieving_weapons(user_info, imagesOFWepones);
     retrieving_maps(user_info);
-    Sending_User_info()
+    Sending_User_info();
   } else {
     console.log("this is checkerinner is:", checkerinner);
   }
 }
 
-export async function Sending_User_info(){
-  // console.log("this is in the Sending_User_info ",playerInfo);
+export async function Sending_User_info() {
   return playerInfo;
 }
