@@ -12,6 +12,7 @@ const InputPage = () => {
   return (
     <View style={styles.Container}>
       <TextInput
+        placeholder="past your steam profile url"
         style={styles.inputstyling}
         value={SteamID}
         onChangeText={setSteamID}
