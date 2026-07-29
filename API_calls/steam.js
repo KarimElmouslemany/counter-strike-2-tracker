@@ -38,6 +38,7 @@ const mapList = [
   { id: "de_train", name: "Train" },
   { id: "de_vertigo", name: "Vertigo" },
   { id: "cs_office", name: "Office" },
+  { id: "de_overpass", name: "Overpass" },
 ];
 const playerInfo = {
   overview: {
@@ -65,7 +66,9 @@ const playerInfo = {
   weapons: [],
   maps: [],
   meta: {
-    steamId: 0,
+    steamId: "",
+    User_profile_name: "",
+    User_profile_Image: "",
     fetchedAt: 0,
     source: 0,
   },
@@ -110,7 +113,7 @@ export async function checkSteamID(id) {
 }
 
 async function FindingsteamID(users_url) {
-  const url_steamID_API = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=0398A494A62EAB4D439E67759FF16A1E&vanityurl=${users_url}`;
+  const url_steamID_API = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${API_Key}&vanityurl=${users_url}`;
   try {
     const response = await fetch(url_steamID_API);
     const data = await response.json();
@@ -123,7 +126,7 @@ async function FindingsteamID(users_url) {
         message: "undefined",
       };
     }
-    if(users_ID.response.success === 42) {
+    if (users_ID.response.success === 42) {
       console.log("No match");
       return { valid: false, message: users_ID.response.message };
     } else {
@@ -138,6 +141,26 @@ async function FindingsteamID(users_url) {
     return error.message;
   }
 }
+
+async function getusersmetadata(SteamID) {
+  playerInfo.meta.steamId = SteamID;
+  const users_info_url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=0398A494A62EAB4D439E67759FF16A1E&steamids=${SteamID}`;
+  const respone = await fetch(users_info_url);
+  const data = await respone.json();
+  const info = data.response.players[0];
+  if (info.length === 0) {
+    return `no users found with this steamID: ${SteamID} `;
+  } else {
+    Object.assign(playerInfo.meta, {
+      User_profile_name: info.personaname,
+      User_profile_Image: info.avatarfull,
+      lastonline: new Date(info.lastlogoff * 1000).toLocaleString("en-GB", {
+        hour12: true,
+      }),
+    });
+  }
+}
+
 async function getuserInfo(SteamID) {
   const url_steam = `https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v2/?appid=730&key=${API_Key}&steamid=${SteamID}`;
   try {
@@ -361,18 +384,18 @@ async function CS2_steam_statues(ID, checkerinner) {
     checkerinner,
   );
   if (checkerinner === true) {
+    getusersmetadata(ID);
     const user_info = await getuserInfo(ID);
     const weapon_image_info = await GetImageInfo(Image_url);
     const imagesOFWepones = storing_images(weapon_image_info);
     getting_users_overview_data(user_info);
     retrieving_weapons(user_info, imagesOFWepones);
     retrieving_maps(user_info);
-    Sending_User_info();
+    Sending_steam_info();
   } else {
     console.log("this is checkerinner is:", checkerinner);
   }
 }
-
-export async function Sending_User_info() {
+export async function Sending_steam_info() {
   return playerInfo;
 }
