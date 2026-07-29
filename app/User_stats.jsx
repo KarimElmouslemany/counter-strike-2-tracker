@@ -8,118 +8,138 @@ import {
   useColorScheme,
   Image,
 } from "react-native";
-import { useRouter,useFocusEffect  } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { colors } from "../color_Assests/Color";
-import { Sending_User_info } from "../API_calls/steam";
+import { Sending_User_Fullinfo } from "../API_calls/Leetify";
 
 const Home = () => {
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
+  const [showAllTime, setShowAllTime] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
       async function loading() {
         // a async function
         console.log("featch started");
-        const player_info = await Sending_User_info();
+        const player_info = await Sending_User_Fullinfo();
         console.log("featch fiinshed", player_info);
-        getplayer_info({...player_info}); // added the data to the function getplayer_info which playerinfo will use to dipslay the data.
+        getplayer_info({ ...player_info }); // added the data to the function getplayer_info which playerinfo will use to dipslay the data.
       }
-        loading()
+      loading();
     }, []),
-  
   );
-
+  let textbutton = "";
+  if (showAllTime === true) {
+    textbutton = "Show Reccent";
+  } else {
+    textbutton = "Show All Time";
+  }
   if (!playerinfo) {
     return <Text>Lodding...</Text>;
   } else {
-    return (
-      <View style={styles.Container}>
-        <View style={styles.innerContainerRanks}>
-          <View style={styles.ContainerCurrentRank}>
-            <Text style={styles.text}>Current Rank</Text>
-          </View>
-          <View style={styles.ContainerCurrentPeak}>
-            <Text style={styles.text}>Peak Rank</Text>
-          </View>
-        </View>
-        <View style={styles.ContainerPlayerInfo}>
-          <Text style={styles.boldText}>
-            Headshot % {playerinfo.overview.headshotPercent}
-          </Text>
-          <Text style={styles.boldText}>
-            K/D Ratio {playerinfo.overview.kdRatio}
-          </Text>
-          <Text style={styles.boldText}>
-            Win % {playerinfo.overview.winRate}
-          </Text>
-        </View>
-        <View style={styles.ContainerWeponeInfo}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerWeapon}>Weapons</Text>
-            <Text style={styles.headerStat}>kills</Text>
-            <Text style={styles.headerStat}>Accuracy</Text>
-            <Text style={styles.headerStat}>KillShare</Text>
-          </View>
-          <FlatList
-            keyExtractor={(item) => item.id}
-            data={playerinfo.weapons}
-            renderItem={({ item }) => {
-              // console.log(playerinfo.weapons.map((w) => w.id));
-              console.log(JSON.stringify(item, null, 2));
-              let imagesource;
-              if (item.name === "Knife") {
-                imagesource = require("../images/Knife_cs2.png");
-              } else {
-                imagesource = { uri: item.image_url };
-              }
-              return (
-                <View style={styles.view_layout}>
-                  <View style={styles.nameSection}>
-                    <Image
-                      style={{ width: 50, height: 50, borderRadius: 8 }}
-                      source={imagesource}
-                    ></Image>
-                    <Text style={styles.Text_style_wepones}>{item.name}</Text>
-                  </View>
-                  <Text style={styles.statValue}>{item.Kills}</Text>
-                  <Text style={styles.statValue}>{item.accuracy}</Text>
-                  <Text style={styles.statValue}>{item.KillShare}</Text>
-                </View>
-              );
-            }}
+    if (showAllTime == true) {
+      return (
+        <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
+          <Button
+            title={textbutton}
+            value={showAllTime}
+            onPress={() => setShowAllTime(!showAllTime)}
           />
-        </View>
-        <View style={styles.ContainerMapsInfo}>
-          <View style={styles.headerRow}>
-            <Text style={styles.headerImageCol}>Map</Text>
-            <Text style={styles.headerStat}>Rounds</Text>
-            <Text style={styles.headerStat}>Wins</Text>
-            <Text style={styles.headerStat}>Win Rate</Text>
+          <View style={styles.innerContainerRanks}>
+            <View style={styles.ContainerCurrentRank}>
+              <Text style={styles.text}>Current Rank</Text>
+            </View>
+            <View style={styles.ContainerCurrentPeak}>
+              <Text style={styles.text}>Peak Rank</Text>
+            </View>
           </View>
+          <View style={styles.ContainerPlayerInfo}>
+            <Text style={styles.boldText}>
+              Headshot % {playerinfo.overview.headshotPercent}
+            </Text>
+            <Text style={styles.boldText}>
+              K/D Ratio {playerinfo.overview.kdRatio}
+            </Text>
+            <Text style={styles.boldText}>
+              Win % {playerinfo.overview.winRate}
+            </Text>
+          </View>
+          <View style={styles.ContainerWeponeInfo}>
+            <View style={styles.headerRow}>
+              <Text style={styles.headerWeapon}>Weapons</Text>
+              <Text style={styles.headerStat}>kills</Text>
+              <Text style={styles.headerStat}>Accuracy</Text>
+              <Text style={styles.headerStat}>KillShare</Text>
+            </View>
+            <FlatList
+              keyExtractor={(item) => item.id}
+              data={playerinfo.weapons}
+              renderItem={({ item }) => {
+                let imagesource;
+                if (item.name === "Knife") {
+                  imagesource = require("../images/Knife_cs2.png");
+                } else {
+                  imagesource = { uri: item.image_url };
+                }
+                return (
+                  <View style={styles.view_layout}>
+                    <View style={styles.nameSection}>
+                      <Image
+                        style={{ width: 50, height: 50, borderRadius: 8 }}
+                        source={imagesource}
+                      ></Image>
+                      <Text style={styles.Text_style_wepones}>{item.name}</Text>
+                    </View>
+                    <Text style={styles.statValue}>{item.Kills}</Text>
+                    <Text style={styles.statValue}>{item.accuracy}</Text>
+                    <Text style={styles.statValue}>{item.KillShare}</Text>
+                  </View>
+                );
+              }}
+            />
+          </View>
+          <View style={styles.ContainerMapsInfo}>
+            <View style={styles.headerRow}>
+              <Text style={styles.headerImageCol}>Map</Text>
+              <Text style={styles.headerStat}>Rounds</Text>
+              <Text style={styles.headerStat}>Wins</Text>
+              <Text style={styles.headerStat}>Win Rate</Text>
+            </View>
 
-          <FlatList
-            keyExtractor={(item) => item.id}
-            data={playerinfo.maps}
-            renderItem={({ item }) => {
-              return (
-                <View style={styles.view_layout}>
-                  <View style={styles.imageCol}>
-                    <Image
-                      style={{ width: 70, height: 70, borderRadius: 8 }}
-                      source={{ uri: item.url_image }}
-                    ></Image>
+            <FlatList
+              keyExtractor={(item) => item.id}
+              data={playerinfo.maps}
+              renderItem={({ item }) => {
+                return (
+                  <View style={styles.view_layout}>
+                    <View style={styles.imageCol}>
+                      <Image
+                        style={{ width: 70, height: 70, borderRadius: 8 }}
+                        source={{ uri: item.url_image }}
+                      ></Image>
+                    </View>
+                    <Text style={styles.statValue}>{item.rounds}</Text>
+                    <Text style={styles.statValue}>{item.wins}</Text>
+                    <Text style={styles.statValue}>{item.winRate}</Text>
                   </View>
-                  <Text style={styles.statValue}>{item.rounds}</Text>
-                  <Text style={styles.statValue}>{item.wins}</Text>
-                  <Text style={styles.statValue}>{item.winRate}</Text>
-                </View>
-              );
-            }}
-          />
-        </View>
-      </View>
-    );
+                );
+              }}
+            />
+          </View>
+        </SafeAreaView>
+      );
+    } else {
+      return (
+        <SafeAreaView>
+          <Button
+          title= {textbutton}
+          onPress={() => setShowAllTime(true)}
+        />
+        </SafeAreaView>
+      );
+    }
   }
 };
 
