@@ -65,6 +65,12 @@ const playerInfo = {
   },
   weapons: [],
   maps: [],
+  ranks: {
+    premier: 0,
+    faceitRank: 0,
+    wingmanRank: 0,
+  },
+  Ranks_maps: [],
   meta: {
     steamId: "",
     User_profile_name: "",
