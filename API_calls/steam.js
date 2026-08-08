@@ -1,5 +1,4 @@
-const API_Key = "0398A494A62EAB4D439E67759FF16A1E";
-// const url_steamID_API = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=0398A494A62EAB4D439E67759FF16A1E&vanityurl=`;
+const API_Key = process.env.EXPO_PUBLIC_STEAM_API_KEY;
 const Image_url = `https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/base_weapons.json`;
 let totalhits = 0;
 let total_shots_fired = 0;
@@ -52,6 +51,11 @@ const playerInfo = {
     accuracy: 0,
     hoursPlayed: 0,
     mvps: 0,
+    preaim: 0,
+    reaction_time_ms: 0,
+    spray_accuracy: 0,
+    accuracy_enemy_spotted: 0,
+    trade_kills: 0,
   },
   combat: {
     damageDone: 0,
@@ -67,9 +71,13 @@ const playerInfo = {
   maps: [],
   ranks: {
     premier: 0,
+    premier_image: "",
     faceitRank: 0,
+    faceitRank_image: "",
     wingmanRank: 0,
+    wingmanRank_image: "",
   },
+  Player_recent_statices: {},
   Ranks_maps: [],
   meta: {
     steamId: "",
@@ -149,21 +157,25 @@ async function FindingsteamID(users_url) {
 }
 
 async function getusersmetadata(SteamID) {
-  playerInfo.meta.steamId = SteamID;
-  const users_info_url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=0398A494A62EAB4D439E67759FF16A1E&steamids=${SteamID}`;
-  const respone = await fetch(users_info_url);
-  const data = await respone.json();
-  const info = data.response.players[0];
-  if (info.length === 0) {
-    return `no users found with this steamID: ${SteamID} `;
-  } else {
-    Object.assign(playerInfo.meta, {
-      User_profile_name: info.personaname,
-      User_profile_Image: info.avatarfull,
-      lastonline: new Date(info.lastlogoff * 1000).toLocaleString("en-GB", {
-        hour12: true,
-      }),
-    });
+  try {
+    playerInfo.meta.steamId = SteamID;
+    const users_info_url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${API_Key}&steamids=${SteamID}`;
+    const respone = await fetch(users_info_url);
+    const data = await respone.json();
+    const info = data.response.players[0];
+    if (info.length === 0) {
+      return `no users found with this steamID: ${SteamID} `;
+    } else {
+      Object.assign(playerInfo.meta, {
+        User_profile_name: info.personaname,
+        User_profile_Image: info.avatarfull,
+        lastonline: new Date(info.lastlogoff * 1000).toLocaleString("en-GB", {
+          hour12: true,
+        }),
+      });
+    }
+  } catch (error) {
+    error.message;
   }
 }
 
@@ -187,7 +199,6 @@ async function GetImageInfo(url_images) {
   } catch (error) {
     error.message;
   }
-  return Image_info;
 }
 function getting_users_overview_data(user_info) {
   for (const s of user_info) {
@@ -403,5 +414,7 @@ async function CS2_steam_statues(ID, checkerinner) {
   }
 }
 export async function Sending_steam_info() {
+  console.log(playerInfo);
   return playerInfo;
 }
+// checkSteamID("76561198301471390");
