@@ -1,9 +1,13 @@
 import { Sending_steam_info } from "./steam.js";
+const API_key = process.env.EXPO_PUBLIC_LEETIY_API_KEY;
+let  playerInfo = {};
+async function main() {
+  playerInfo = await Sending_steam_info();
+  console.log("this is player info before: ", playerInfo);
+  let ID = playerInfo.meta.steamId;
+  leetify_main_func(ID);
+}
 
-const playerInfo = await Sending_steam_info();
-console.log("this is player info before: ", playerInfo);
-// playerInfo.meta.steamId
-leetify_main_func("76561198301471390");
 const maps = [
   { id: "de_edin", name: "Edin" },
   { id: "de_jura", name: "Jura" },
@@ -69,7 +73,6 @@ const competitiveRanks = {
 
 async function get_leetify_info(SteamID) {
   try {
-    const API_key = "8af5cfa9-fae5-4034-880f-35269f099e4f";
     const leetify_url = `https://api-public.cs-prod.leetify.com/v3/profile?steam64_id=${SteamID}&_leetify_key=${API_key}`;
     const respone = await fetch(leetify_url);
     const data = await respone.json();
@@ -84,33 +87,47 @@ async function get_leetify_info(SteamID) {
 }
 function sorting_leetify_data(leetify_data) {
   let ranks_everything_else = leetify_data.ranks;
- let ranks_maps = leetify_data.ranks.competitive;
-
- Object.assign(playerInfo.ranks,{
+  let ranks_maps = leetify_data.ranks.competitive;
+  let stats = leetify_data.stats;
+  Object.assign(playerInfo.ranks, {
     premier: ranks_everything_else.premier,
+    premier_image: `https://cs2.space/api/assets/premier/${ranks_everything_else.premier}.svg`,
     faceitRank: ranks_everything_else.faceit,
-    wingmanRank: ranks_everything_else.wingman
- })
-  for(let i =0; i < maps.length; i++)
-    if(maps[i].id === ranks_maps[i].map_name){
+    faceitRank_image: `https://www.hltv.org/img/static/badges/faceit${ranks_everything_else.faceit}.svg`,
+    wingmanRank: ranks_everything_else.wingman,
+    wingmanRank_image: `https://cs2.space/api/assets/wingman/${ranks_everything_else.wingman}.svg`,
+  });
+  ranks_comp_maps(ranks_maps);
+  stats_orgnising(stats);
+}
+function ranks_comp_maps(ranks_maps) {
+  for (let i = 0; i < maps.length; i++) {
+    if (maps[i].id === ranks_maps[i].map_name) {
       playerInfo.Ranks_maps.push({
         map_name: maps[i].name,
         maps_rank_image: `https://cs2.space/api/assets/matchmaking/${ranks_maps[i].rank}.svg`,
-        rank_number: ranks_maps[i].rank
+        rank_number: ranks_maps[i].rank,
       });
     }
   }
+}
 
-async function ranks_peremier_rank(
+function stats_orgnising(stats) {
+  Object.assign(playerInfo.overview, {
+    preaim: stats.preaim,
+    reaction_time_ms: stats.reaction_time_ms,
+    spray_accuracy: stats.spray_accuracy,
+    accuracy_enemy_spotted: stats.accuracy_enemy_spotted,
+    trade_kills: stats.trade_kills_success_percentage,
+  });
 
-  
-) {}
-async function ranks_comp_maps() {}
-async function ranks_wingman() {}
+  console.log(stats);
+}
 async function leetify_main_func(id) {
   const info = await get_leetify_info(id);
   sorting_leetify_data(info);
-  
+  Sending_User_Fullinfo();
+  // console.log(playerInfo);
 }
 export async function Sending_User_Fullinfo() {
   console.log(
@@ -118,3 +135,4 @@ export async function Sending_User_Fullinfo() {
   );
   return playerInfo;
 }
+main();
