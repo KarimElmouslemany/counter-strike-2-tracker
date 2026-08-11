@@ -1,11 +1,12 @@
 import { Sending_steam_info } from "./steam.js";
 const API_key = process.env.EXPO_PUBLIC_LEETIY_API_KEY;
-let  playerInfo = {};
-async function main() {
-  playerInfo = await Sending_steam_info();
+export let  playerInfo = {};
+export async function main() {
+  const steamInfo = await Sending_steam_info();
+  Object.assign(playerInfo, steamInfo);
   console.log("this is player info before: ", playerInfo);
   let ID = playerInfo.meta.steamId;
-  leetify_main_func(ID);
+  await leetify_main_func(ID);
 }
 
 const maps = [
@@ -133,6 +134,6 @@ export async function Sending_User_Fullinfo() {
   console.log(
     "leetify.js has been tirgired and Sending_User_Fullinfo has been trigired",
   );
+  console.log("PlAYER INFO AT THE END IN LEETIFY: ",playerInfo);
   return playerInfo;
 }
-main();
