@@ -89,33 +89,50 @@ const playerInfo = {
 };
 async function extractingProfile(url) {
   let user_profile_or_ID;
-  if (url.includes("id")) {
-    url = url.split("https://steamcommunity.com/id/");
-    url = url[1];
-    url = url.split("/");
+  if (!url.includes("https://steamcommunity.com/")){
+    return "please enter a steam url";
   } else {
-    url = url.split("https://steamcommunity.com/profiles/");
-    url = url[1];
-    url = url.split("/");
+    
+    if (url.includes("id")) {
+      url = url.split("https://steamcommunity.com/id/");
+      url = url[1];
+      url = url.split("/");
+      url = url[0];
+      user_profile_or_ID = url;
+      return user_profile_or_ID;
+    } if(url.includes("profiles")) {
+      url = url.split("https://steamcommunity.com/profiles/");
+      url = url[1];
+      url = url.split("/");
+      url = url[0];
+      user_profile_or_ID = url;
+      return user_profile_or_ID;
+    }else{
+      return "valid steam profile url";
+    }
+    
+
   }
-  url = url[0];
-  user_profile_or_ID = url;
-  return user_profile_or_ID;
 }
 export async function checkSteamID(id) {
-  const regex = /^\d{17}$/;
+  const regex_length_number = /^\d{17}$/;
   const number_Rexgex = /^\d*$/;
   console.log("ID:", id);
   if (!number_Rexgex.test(id)) {
     id = await extractingProfile(id);
     if (!number_Rexgex.test(id)) {
       let info = await FindingsteamID(id);
-      console.log("this is what info returns ", info);
-      CS2_steam_statues(info.ID, info.valid);
-      return;
+      if (info.valid == true) {
+        CS2_steam_statues(info.ID, info.valid);
+      } else {
+        return {
+          valid: false,
+          message: info.message,
+        };
+      }
     }
   }
-  if (!regex.test(id)) {
+  if (!regex_length_number.test(id)) {
     console.log("Steam id needs to be 17 digets number");
     return {
       valid: false,
@@ -123,7 +140,12 @@ export async function checkSteamID(id) {
     };
   } else {
     CS2_steam_statues(id, true);
+    return {
+      valid: true,
+      message: "everything works user entred a number"
+    };
   }
+  return ("This is in return that is inside the checkSteamID() ", info.message);
 }
 
 async function FindingsteamID(users_url) {
@@ -132,19 +154,19 @@ async function FindingsteamID(users_url) {
     const response = await fetch(url_steamID_API);
     const data = await response.json();
     let users_ID = data;
-    console.log("this is is what users_ID returns ", users_ID);
     if (users_ID === undefined) {
-      console.log("something went wrong", users_ID.response.message);
+      console.log("something went wrong it came back  undefined");
       return {
         valid: true,
-        message: "undefined",
+        message: "undefined, somthing went wrong",
       };
     }
     if (users_ID.response.success === 42) {
-      console.log("No match");
-      return { valid: false, message: users_ID.response.message };
+      return {
+        valid: false,
+        message: "No match. please enter a full valid profile steam url",
+      };
     } else {
-      console.log("user found");
       return {
         valid: true,
         message: "user found",
@@ -152,7 +174,7 @@ async function FindingsteamID(users_url) {
       };
     }
   } catch (error) {
-    return error.message;
+    return { valid: false, message: error.message };
   }
 }
 
@@ -417,4 +439,3 @@ export async function Sending_steam_info() {
   console.log(playerInfo);
   return playerInfo;
 }
-// checkSteamID("76561198301471390");
