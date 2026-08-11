@@ -123,7 +123,8 @@ export async function checkSteamID(id) {
     if (!number_Rexgex.test(id)) {
       let info = await FindingsteamID(id);
       if (info.valid == true) {
-        CS2_steam_statues(info.ID, info.valid);
+        await CS2_steam_statues(info.ID, info.valid);
+         return { valid: true, id: info.ID }; 
       } else {
         return {
           valid: false,
@@ -139,7 +140,7 @@ export async function checkSteamID(id) {
       message: "Steam id needs to be 17 digets number",
     };
   } else {
-    CS2_steam_statues(id, true);
+    await CS2_steam_statues(id, true);
     return {
       valid: true,
       message: "everything works user entred a number"
@@ -155,7 +156,7 @@ async function FindingsteamID(users_url) {
     const data = await response.json();
     let users_ID = data;
     if (users_ID === undefined) {
-      console.log("something went wrong it came back  undefined");
+      //console.log("something went wrong it came back  undefined");
       return {
         valid: true,
         message: "undefined, somthing went wrong",
@@ -416,14 +417,14 @@ function storing_images(weapon_image_info) {
   return wepones_images;
 }
 async function CS2_steam_statues(ID, checkerinner) {
-  console.log(
-    "this is in CS2_steam_statues the ID is",
-    ID,
-    "and checker is",
-    checkerinner,
-  );
+  //console.log(
+  //   "this is in CS2_steam_statues the ID is",
+  //   ID,
+  //   "and checker is",
+  //   checkerinner,
+  // );
   if (checkerinner === true) {
-    getusersmetadata(ID);
+   await getusersmetadata(ID);
     const user_info = await getuserInfo(ID);
     const weapon_image_info = await GetImageInfo(Image_url);
     const imagesOFWepones = storing_images(weapon_image_info);
@@ -436,6 +437,6 @@ async function CS2_steam_statues(ID, checkerinner) {
   }
 }
 export async function Sending_steam_info() {
-  console.log(playerInfo);
+  // console.log(playerInfo);
   return playerInfo;
 }
