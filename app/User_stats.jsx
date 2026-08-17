@@ -13,22 +13,18 @@ import { useRouter, useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { colors } from "../color_Assests/Color";
-import { Sending_User_Fullinfo } from "../API_calls/Leetify";
+import  {playerInfo } from "../API_calls/Leetify";
+// import * as Leetify from '../API_calls/Leetify';
 
 const Home = () => {
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
   const [showAllTime, setShowAllTime] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
-      async function loading() {
-        // a async function
-        console.log("featch started");
-        const player_info = await Sending_User_Fullinfo();
-        console.log("featch fiinshed", player_info);
-        getplayer_info({ ...player_info }); // added the data to the function getplayer_info which playerinfo will use to dipslay the data.
-      }
-      loading();
-    }, []),
+      console.log("this is what playerInfo has:: " , playerInfo);
+      getplayer_info({ ...playerInfo });
+      
+    },[])
   );
   let textbutton = "";
   if (showAllTime === true) {
@@ -39,6 +35,7 @@ const Home = () => {
   if (!playerinfo) {
     return <Text>Lodding...</Text>;
   } else {
+    console.log("playerinfo.overview specifically:", playerinfo.overview);
     if (showAllTime == true) {
       return (
         <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
@@ -50,6 +47,7 @@ const Home = () => {
           <View style={styles.innerContainerRanks}>
             <View style={styles.ContainerCurrentRank}>
               <Text style={styles.text}>Current Rank</Text>
+              <Image source={{uri: playerinfo.ranks.premier_image}}></Image>
             </View>
             <View style={styles.ContainerCurrentPeak}>
               <Text style={styles.text}>Peak Rank</Text>
@@ -132,11 +130,13 @@ const Home = () => {
       );
     } else {
       return (
-        <SafeAreaView>
-          <Button
-          title= {textbutton}
-          onPress={() => setShowAllTime(true)}
-        />
+        <SafeAreaView tyle={styles.Container} edges={["top", "left", "right"]}>
+          <Button title={textbutton} onPress={() => setShowAllTime(true)} />
+          <View>
+            <Text>
+              hi
+            </Text>
+          </View>
         </SafeAreaView>
       );
     }
