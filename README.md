@@ -2,7 +2,7 @@
 
 A mobile statistics tracker for Counter-Strike 2, built with React Native and Expo. The application combines data from the Steam Web API and Leetify API to give players a clear view of their recent performance and in-game statistics.
 
-## Features
+## ✨ Features
 Search for a player using their Steam profile
 Validate Steam profile URLs before requesting player data
 Retrieve and process statistics from the Steam Web API
@@ -16,20 +16,22 @@ Display weapon and map statistics
 Retrieve recent match results from Leetify
 Display the player's current Leetify rank
 Present Steam and Leetify statistics within one mobile application
-Technologies
-React Native
-Expo
-JavaScript
-Steam Web API
-Leetify API
-Git / GitHub
-How It Works
+
+## ⚙️ Technologies
+* React Native
+* Expo
+* JavaScript
+* Steam Web API
+* Leetify API
+* Git / GitHub
+
+## How It Works
 
 The application retrieves player information from external APIs and processes the returned data before displaying it through the mobile interface.
 
 Steam data is used to calculate and display detailed player and weapon statistics, while Leetify provides additional information such as recent match performance and current rank.
 
-Project Motivation
+## Project Motivation
 
 I created this project because of my interest in Counter-Strike 2 and FPS games. I wanted to build a mobile application that brings useful player statistics together in one place while developing my skills in React Native, API integration, data processing and mobile application development.
 
