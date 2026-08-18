@@ -127,20 +127,22 @@ function sorting_leetify_data(leetify_data, CS2STATS_gg_data) {
 }
 function ranks_comp_maps(ranks_maps) {
   playerInfo.Ranks_maps = [];
-  for (let i = 0; i < ranks_maps.length; i++);
-  const maps_found = maps.find((iteam) => iteam.id === ranks_maps[i].map_name);
+  for (let i = 0; i < ranks_maps.length; i++) {
+    const maps_found = maps.find(
+      (iteam) => iteam.id === ranks_maps[i].map_name,
+    );
 
-  if (!maps_found) {
-    console.log("this is mmap_found ", maps_found);
-  } else {
-    playerInfo.Ranks_maps.push({
-      map_name: maps_found.name,
-      maps_rank_image: `https://cs2.space/api/assets/matchmaking/${ranks_maps[i].rank}.svg`,
-      rank_number: ranks_maps[i].rank,
-    });
+    if (!maps_found) {
+      console.log("this is mmap_found ", maps_found);
+    } else {
+      playerInfo.Ranks_maps.push({
+        map_name: maps_found.name,
+        maps_rank_image: `https://cs2.space/api/assets/matchmaking/${ranks_maps[i].rank}.svg`,
+        rank_number: ranks_maps[i].rank,
+      });
+    }
   }
 }
-
 function stats_orgnising(stats) {
   Object.assign(playerInfo.overview, {
     preaim: stats.preaim,
