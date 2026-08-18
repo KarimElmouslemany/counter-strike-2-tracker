@@ -1,13 +1,31 @@
 import { StyleSheet, Text, View, TextInput, Button } from "react-native";
 import React, { useState } from "react";
-import {checkSteamID } from "../API_calls/steam";
+import { useRouter } from "expo-router";
+import { checkSteamID } from "../API_calls/steam";
+import { Sending_User_Fullinfo, main } from "../API_calls/Leetify";
 
 const InputPage = () => {
   const [SteamID, setSteamID] = useState("");
   const [errormessage, seterrors] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   async function sendUserInfo(ID) {
-    const checkResult = checkSteamID(ID);
-    seterrors(checkResult.message);
+    seterrors("");
+    if (!ID) {
+      return seterrors("ID must be entered");
+    } else {
+      const checkResult = await checkSteamID(ID);
+      console.log("this is check resutls ", checkResult);
+      if (checkResult.valid == false) {
+        seterrors(checkResult.message);
+        return;
+      }
+    }
+    setLoading(true);
+    // await Sending_User_Fullinfo();
+    await main();
+    setLoading(false);
+    router.push("/User_stats");
   }
   return (
     <View style={styles.Container}>
@@ -23,7 +41,6 @@ const InputPage = () => {
     </View>
   );
 };
-
 export default InputPage;
 
 const styles = StyleSheet.create({
