@@ -7,24 +7,28 @@ import {
   FlatList,
   useColorScheme,
   Image,
+  SectionList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { colors } from "../color_Assests/Color";
-import  {playerInfo } from "../API_calls/Leetify";
-// import * as Leetify from '../API_calls/Leetify';
+import { playerInfo } from "../API_calls/Leetify";
+import { SvgUri } from "react-native-svg";
+import { useWindowDimensions } from "react-native";
 
 const Home = () => {
+  const { width } = useWindowDimensions();
+  const rankIconSize = width * 0.3;
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
   const [showAllTime, setShowAllTime] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
-      console.log("this is what playerInfo has:: " , playerInfo);
+      console.log("this is what playerInfo has:: ", playerInfo);
+
       getplayer_info({ ...playerInfo });
-      
-    },[])
+    }, []),
   );
   let textbutton = "";
   if (showAllTime === true) {
@@ -36,6 +40,7 @@ const Home = () => {
     return <Text>Lodding...</Text>;
   } else {
     console.log("playerinfo.overview specifically:", playerinfo.overview);
+    console.log(playerinfo.ranks.premier_image);
     if (showAllTime == true) {
       return (
         <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
@@ -44,13 +49,33 @@ const Home = () => {
             value={showAllTime}
             onPress={() => setShowAllTime(!showAllTime)}
           />
-          <View style={styles.innerContainerRanks}>
-            <View style={styles.ContainerCurrentRank}>
-              <Text style={styles.text}>Current Rank</Text>
-              <Image source={{uri: playerinfo.ranks.premier_image}}></Image>
+          <View style={styles.profileRow}>
+            <View style={styles.Profile_Container}>
+              <Image
+                style={styles.Profile_pic}
+                source={{ uri: playerinfo.meta.User_profile_Image }}
+              />
+              <Text style={styles.Profile_name}>
+                {playerinfo.meta.User_profile_name}
+              </Text>
             </View>
-            <View style={styles.ContainerCurrentPeak}>
-              <Text style={styles.text}>Peak Rank</Text>
+            <View style={styles.innerContainerRanks}>
+              <View style={styles.rankBox}>
+                <Text style={styles.text}>Current Rank</Text>
+                <SvgUri
+                  width="95%"
+                  height="75%"
+                  uri={playerinfo.ranks.premier_image_curent}
+                ></SvgUri>
+              </View>
+              <View style={styles.rankBox}>
+                <Text style={styles.text}>Peak Rank</Text>
+                <SvgUri
+                  width="95%"
+                  height="75%"
+                  uri={playerInfo.ranks.premier_image_peak}
+                ></SvgUri>
+              </View>
             </View>
           </View>
           <View style={styles.ContainerPlayerInfo}>
@@ -64,17 +89,39 @@ const Home = () => {
               Win % {playerinfo.overview.winRate}
             </Text>
           </View>
-          <View style={styles.ContainerWeponeInfo}>
-            <View style={styles.headerRow}>
-              <Text style={styles.headerWeapon}>Weapons</Text>
-              <Text style={styles.headerStat}>kills</Text>
-              <Text style={styles.headerStat}>Accuracy</Text>
-              <Text style={styles.headerStat}>KillShare</Text>
-            </View>
-            <FlatList
-              keyExtractor={(item) => item.id}
-              data={playerinfo.weapons}
-              renderItem={({ item }) => {
+
+          <SectionList
+            scrollEnabled={true}
+            sections={[
+              {
+                title: "Wepones",
+                data: playerinfo.weapons,
+              },
+              {
+                title: "Maps",
+                data: playerinfo.maps,
+              },
+            ]}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item, section }) => {
+              if (section.title === "Maps") {
+                return (
+                  //  <View style={styles.ContainerMapsInfo}>
+
+                  <View style={styles.view_layout}>
+                    <View style={styles.imageCol}>
+                      <Image
+                        style={{ width: 70, height: 70, borderRadius: 8 }}
+                        source={{ uri: item.url_image }}
+                      ></Image>
+                    </View>
+                    <Text style={styles.statValue}>{item.rounds}</Text>
+                    <Text style={styles.statValue}>{item.wins}</Text>
+                    <Text style={styles.statValue}>{item.winRate}</Text>
+                  </View>
+                  // </View>
+                );
+              } else {
                 let imagesource;
                 if (item.name === "Knife") {
                   imagesource = require("../images/Knife_cs2.png");
@@ -82,6 +129,7 @@ const Home = () => {
                   imagesource = { uri: item.image_url };
                 }
                 return (
+                  // <View style={styles.ContainerWeponeInfo}>
                   <View style={styles.view_layout}>
                     <View style={styles.nameSection}>
                       <Image
@@ -94,38 +142,32 @@ const Home = () => {
                     <Text style={styles.statValue}>{item.accuracy}</Text>
                     <Text style={styles.statValue}>{item.KillShare}</Text>
                   </View>
+                  // </View>
                 );
-              }}
-            />
-          </View>
-          <View style={styles.ContainerMapsInfo}>
-            <View style={styles.headerRow}>
-              <Text style={styles.headerImageCol}>Map</Text>
-              <Text style={styles.headerStat}>Rounds</Text>
-              <Text style={styles.headerStat}>Wins</Text>
-              <Text style={styles.headerStat}>Win Rate</Text>
-            </View>
-
-            <FlatList
-              keyExtractor={(item) => item.id}
-              data={playerinfo.maps}
-              renderItem={({ item }) => {
+              }
+            }}
+            renderSectionHeader={({ section }) => {
+              if (section.title === "Wepones") {
                 return (
-                  <View style={styles.view_layout}>
-                    <View style={styles.imageCol}>
-                      <Image
-                        style={{ width: 70, height: 70, borderRadius: 8 }}
-                        source={{ uri: item.url_image }}
-                      ></Image>
-                    </View>
-                    <Text style={styles.statValue}>{item.rounds}</Text>
-                    <Text style={styles.statValue}>{item.wins}</Text>
-                    <Text style={styles.statValue}>{item.winRate}</Text>
+                  <View style={styles.headerRow}>
+                    <Text style={styles.headerWeapon}>Weapons</Text>
+                    <Text style={styles.headerStat}>Kills</Text>
+                    <Text style={styles.headerStat}>Accuracy</Text>
+                    <Text style={styles.headerStat}>KillShare</Text>
                   </View>
                 );
-              }}
-            />
-          </View>
+              } else {
+                return (
+                  <View style={styles.headerRow}>
+                    <Text style={styles.headerImageCol}>Map</Text>
+                    <Text style={styles.headerStat}>Rounds</Text>
+                    <Text style={styles.headerStat}>Wins</Text>
+                    <Text style={styles.headerStat}>Win Rate</Text>
+                  </View>
+                );
+              }
+            }}
+          />
         </SafeAreaView>
       );
     } else {
@@ -133,9 +175,7 @@ const Home = () => {
         <SafeAreaView tyle={styles.Container} edges={["top", "left", "right"]}>
           <Button title={textbutton} onPress={() => setShowAllTime(true)} />
           <View>
-            <Text>
-              hi
-            </Text>
+            <Text>hi</Text>
           </View>
         </SafeAreaView>
       );
@@ -150,59 +190,84 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  Title: {
-    fontSize: 22,
-    alignContent: "center",
-    color: colors.textPrimary,
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 8,
+    marginTop: "-20%",
+  },
+  Profile_Container: {
+    backgroundColor: colors.background,
+    alignItems: "center",
+    marginTop: "5%",
+  },
+  Profile_pic: {
+    marginHorizontal: 10,
+    aspectRatio: 1,
+    marginTop: "5%",
+    width: "37%",
+    height: "37%",
+    borderRadius: 999,
+    overflow: "hidden",
+    borderWidth: 3,
+    borderColor: "white",
+    alignSelf: "center",
+  },
+  Profile_name: {
+    fontWeight: "bold",
+    color: "white",
+    fontSize: 24,
+    marginLeft: 10,
+    marginTop: 10,
   },
   innerContainerRanks: {
-    backgroundColor: colors.card,
-    height: 120, // reduced from 200
-    marginTop: 20, // reduced from 100
+    marginTop: "5%",
+    backgroundColor: colors.background,
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-around", // evenly spaced instead of space-between
     borderRadius: 8,
-    paddingHorizontal: 16,
+    padding: 8,
   },
-  ContainerCurrentRank: {
+  rankBox: {
     backgroundColor: colors.cardElevated,
-    width: 150,
-    padding: 12,
+    width: "90%",
+    height: 75,
+    marginVertical: 5,
+    padding: 4,
     borderRadius: 8,
-  },
-  ContainerCurrentPeak: {
-    backgroundColor: colors.cardElevated,
-    width: 150,
-    borderRadius: 8,
-    padding: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   ContainerPlayerInfo: {
     backgroundColor: colors.card,
-    height: 80, // reduced from 150
-    marginTop: 20, // reduced from 100
+    height: "10%",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
     borderRadius: 8,
     paddingHorizontal: 16,
+    transform: [{ translateY: -60 }],
   },
   boldText: {
     fontWeight: "bold",
     fontSize: 16,
-    color: colors.textPrimary, // was missing entirely, defaulted to black
+    color: colors.textPrimary,
   },
   ContainerWeponeInfo: {
     backgroundColor: colors.card,
-    flex: 1,
-    marginTop: 20,
     marginBottom: 10,
     borderRadius: 5,
+    transform: [{ translateY: -30 }],
+    height: "100%",
   },
   ContainerMapsInfo: {
+    marginBottom: 20,
+    height: "100%",
     backgroundColor: colors.card,
-    flex: 1,
-    marginTop: 5,
     borderRadius: 5,
   },
   Text_style_wepones: {
