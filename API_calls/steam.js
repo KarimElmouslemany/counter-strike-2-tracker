@@ -70,8 +70,10 @@ const playerInfo = {
   weapons: [],
   maps: [],
   ranks: {
-    premier: 0,
-    premier_image: "",
+    premier_curent_rank: 0,
+    premier_image_curent: "",
+    premier_peak_rank: 0,
+    premier_image_peak: "",
     faceitRank: 0,
     faceitRank_image: "",
     wingmanRank: 0,
@@ -417,12 +419,6 @@ function storing_images(weapon_image_info) {
   return wepones_images;
 }
 async function CS2_steam_statues(ID, checkerinner) {
-  //console.log(
-  //   "this is in CS2_steam_statues the ID is",
-  //   ID,
-  //   "and checker is",
-  //   checkerinner,
-  // );
   if (checkerinner === true) {
    await getusersmetadata(ID);
     const user_info = await getuserInfo(ID);
@@ -437,6 +433,5 @@ async function CS2_steam_statues(ID, checkerinner) {
   }
 }
 export async function Sending_steam_info() {
-  // console.log(playerInfo);
   return playerInfo;
 }
