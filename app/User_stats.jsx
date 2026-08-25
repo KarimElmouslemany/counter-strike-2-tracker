@@ -8,6 +8,7 @@ import {
   useColorScheme,
   Image,
   SectionList,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
@@ -23,6 +24,7 @@ const Home = () => {
   const rankIconSize = width * 0.3;
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
   const [showAllTime, setShowAllTime] = useState(true);
+  const [showWeapons, setShowWeapons] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
       console.log("this is what playerInfo has:: ", playerInfo);
@@ -30,6 +32,7 @@ const Home = () => {
       getplayer_info({ ...playerInfo });
     }, []),
   );
+
   let textbutton = "";
   if (showAllTime === true) {
     textbutton = "Show Reccent";
@@ -39,12 +42,36 @@ const Home = () => {
   if (!playerinfo) {
     return <Text>Lodding...</Text>;
   } else {
+    let listheading = "";
+    let listdata;
+    if (showWeapons == true) {
+      listdata = playerinfo.weapons;
+      listheading = (
+        <View style={styles.headerRow}>
+          <Text style={styles.headerWeapon}>Weapons</Text>
+          <Text style={styles.headerStat}>Kills</Text>
+          <Text style={styles.headerStat}>Accuracy</Text>
+          <Text style={styles.headerStat}>KillShare</Text>
+        </View>
+      );
+    } else {
+      listdata = playerinfo.maps;
+      listheading = (
+        <View style={styles.headerRow}>
+          <Text style={styles.headerImageCol}>Map</Text>
+          <Text style={styles.headerStat}>Rounds</Text>
+          <Text style={styles.headerStat}>Wins</Text>
+          <Text style={styles.headerStat}>Win Rate</Text>
+        </View>
+      );
+    }
     console.log("playerinfo.overview specifically:", playerinfo.overview);
     console.log(playerinfo.ranks.premier_image);
     if (showAllTime == true) {
       return (
         <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
           <Button
+            // style ={styles.}
             title={textbutton}
             value={showAllTime}
             onPress={() => setShowAllTime(!showAllTime)}
@@ -89,80 +116,78 @@ const Home = () => {
               Win % {playerinfo.overview.winRate}
             </Text>
           </View>
+          <View style={styles.selectorContainer}>
+            <Pressable
+              onPress={() => setShowWeapons(true)}
+              style={[
+                styles.selectorButton,
+                showWeapons && styles.selectorButtonActive,
+              ]}
+            >
+              <Text style={styles.text_test}>Weapons</Text>
+            </Pressable>
 
-          <SectionList
-            scrollEnabled={true}
-            sections={[
-              {
-                title: "Wepones",
-                data: playerinfo.weapons,
-              },
-              {
-                title: "Maps",
-                data: playerinfo.maps,
-              },
-            ]}
+            <Pressable
+              onPress={() => setShowWeapons(false)}
+              style={[
+                styles.selectorButton,
+                !showWeapons && styles.selectorButtonActive,
+              ]}
+            >
+              <Text style={styles.text_test}>Maps</Text>
+            </Pressable>
+          </View>
+          {listheading}
+          <FlatList
             keyExtractor={(item) => item.id}
-            renderItem={({ item, section }) => {
-              if (section.title === "Maps") {
-                return (
-                  //  <View style={styles.ContainerMapsInfo}>
-
-                  <View style={styles.view_layout}>
-                    <View style={styles.imageCol}>
-                      <Image
-                        style={{ width: 70, height: 70, borderRadius: 8 }}
-                        source={{ uri: item.url_image }}
-                      ></Image>
-                    </View>
-                    <Text style={styles.statValue}>{item.rounds}</Text>
-                    <Text style={styles.statValue}>{item.wins}</Text>
-                    <Text style={styles.statValue}>{item.winRate}</Text>
-                  </View>
-                  // </View>
-                );
-              } else {
+            data={listdata}
+            renderItem={({ item }) => {
+              if (showWeapons == true) {
                 let imagesource;
+
                 if (item.name === "Knife") {
                   imagesource = require("../images/Knife_cs2.png");
                 } else {
                   imagesource = { uri: item.image_url };
                 }
+
                 return (
-                  // <View style={styles.ContainerWeponeInfo}>
                   <View style={styles.view_layout}>
                     <View style={styles.nameSection}>
                       <Image
-                        style={{ width: 50, height: 50, borderRadius: 8 }}
+                        style={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: 8,
+                        }}
                         source={imagesource}
-                      ></Image>
+                      />
+
                       <Text style={styles.Text_style_wepones}>{item.name}</Text>
                     </View>
+
                     <Text style={styles.statValue}>{item.Kills}</Text>
                     <Text style={styles.statValue}>{item.accuracy}</Text>
                     <Text style={styles.statValue}>{item.KillShare}</Text>
                   </View>
-                  // </View>
-                );
-              }
-            }}
-            renderSectionHeader={({ section }) => {
-              if (section.title === "Wepones") {
-                return (
-                  <View style={styles.headerRow}>
-                    <Text style={styles.headerWeapon}>Weapons</Text>
-                    <Text style={styles.headerStat}>Kills</Text>
-                    <Text style={styles.headerStat}>Accuracy</Text>
-                    <Text style={styles.headerStat}>KillShare</Text>
-                  </View>
                 );
               } else {
                 return (
-                  <View style={styles.headerRow}>
-                    <Text style={styles.headerImageCol}>Map</Text>
-                    <Text style={styles.headerStat}>Rounds</Text>
-                    <Text style={styles.headerStat}>Wins</Text>
-                    <Text style={styles.headerStat}>Win Rate</Text>
+                  <View style={styles.view_layout}>
+                    <View style={styles.imageCol}>
+                      <Image
+                        style={{
+                          width: 70,
+                          height: 70,
+                          borderRadius: 8,
+                        }}
+                        source={{ uri: item.url_image }}
+                      />
+                    </View>
+
+                    <Text style={styles.statValue}>{item.rounds}</Text>
+                    <Text style={styles.statValue}>{item.wins}</Text>
+                    <Text style={styles.statValue}>{item.winRate}</Text>
                   </View>
                 );
               }
@@ -186,6 +211,9 @@ const Home = () => {
 export default Home;
 
 const styles = StyleSheet.create({
+  mapsSectionHeader: {
+    marginTop: 20,
+  },
   Container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -257,19 +285,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
   },
-  ContainerWeponeInfo: {
-    backgroundColor: colors.card,
-    marginBottom: 10,
-    borderRadius: 5,
-    transform: [{ translateY: -30 }],
-    height: "100%",
-  },
-  ContainerMapsInfo: {
-    marginBottom: 20,
-    height: "100%",
-    backgroundColor: colors.card,
-    borderRadius: 5,
-  },
   Text_style_wepones: {
     color: colors.textPrimary,
     fontSize: 14,
@@ -280,32 +295,45 @@ const styles = StyleSheet.create({
   view_layout: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+
+    backgroundColor: colors.card,
+
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
-    marginVertical: 4, // small gap between rows so borders don't touch
+
+    marginHorizontal: 8,
+    marginVertical: 4,
   },
   headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between", // spreads the 4 labels evenly across the row
+    justifyContent: "space-between",
+    alignItems: "center",
+
+    backgroundColor: colors.cardElevated,
+
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 10,
+
+    borderRadius: 8,
+    marginHorizontal: 8,
+    marginBottom: 5,
   },
   headerWeapon: {
     flex: 2, // matches nameSection below
     fontWeight: "bold",
     color: colors.textSecondary,
-  },
-  headerMap: {
-    fontWeight: "bold",
-    color: colors.textSecondary,
+    fontSize: 16,
   },
   headerStat: {
     flex: 1, // matches statValue below
     textAlign: "center",
     color: colors.textSecondary,
     fontWeight: "bold",
+    fontSize: 16,
   },
   nameSection: {
     flex: 2, // must match headerWeapon
@@ -330,10 +358,45 @@ const styles = StyleSheet.create({
     textAlign: "left",
     color: colors.textSecondary,
     paddingLeft: 15,
+    fontSize: 16,
+    fontWeight: "bold",
   },
   imageCol: {
     flex: 2,
     alignItems: "flex-start", // matches "left" alignment above
+  },
+  selectorContainer: {
+    transform: [{translateY: -20}],
+    flexDirection: "row",
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    padding: 4,
+    marginHorizontal: 8,
+    marginBottom: 10,
+  },
+
+  selectorButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+
+  selectorButtonActive: {
+    backgroundColor: colors.cardElevated,
+  },
+
+  selectorText: {
+    color: colors.textSecondary,
+    fontWeight: "bold",
+  },
+
+  selectorTextActive: {
+    color: colors.textPrimary,
+  },
+  text_test: {
+    color: colors.textPrimary,
   },
 });
 // rnfes
