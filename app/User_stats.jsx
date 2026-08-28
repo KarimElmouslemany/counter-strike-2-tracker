@@ -22,6 +22,7 @@ import { useWindowDimensions } from "react-native";
 const Home = () => {
   const { width } = useWindowDimensions();
   const rankIconSize = width * 0.3;
+  const statIconSize = Math.min(Math.max(width * 0.1, 32), 50);
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
   const [showAllTime, setShowAllTime] = useState(true);
   const [showWeapons, setShowWeapons] = useState(true);
@@ -71,7 +72,6 @@ const Home = () => {
       return (
         <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
           <Button
-            // style ={styles.}
             title={textbutton}
             value={showAllTime}
             onPress={() => setShowAllTime(!showAllTime)}
@@ -106,15 +106,54 @@ const Home = () => {
             </View>
           </View>
           <View style={styles.ContainerPlayerInfo}>
-            <Text style={styles.boldText}>
-              Headshot % {playerinfo.overview.headshotPercent}
-            </Text>
-            <Text style={styles.boldText}>
-              K/D Ratio {playerinfo.overview.kdRatio}
-            </Text>
-            <Text style={styles.boldText}>
-              Win % {playerinfo.overview.winRate}
-            </Text>
+            <View style={styles.statBox}>
+              <Image
+                style={{
+                  width: statIconSize,
+                  height: statIconSize,
+                  resizeMode: "contain",
+                }}
+                source={require("../images/headshot.png")}
+              />
+              <Text style={styles.boldText}>
+                {playerinfo.overview.headshotPercent}
+              </Text>
+            </View>
+            <View style={styles.statBox}>
+              <Image
+                style={{
+                  width: statIconSize,
+                  height: statIconSize,
+                  resizeMode: "contain",
+                }}
+                source={require("../images/KD_ratio.png")}
+              />
+              <Text style={styles.boldText}>{playerinfo.overview.kdRatio}</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Image
+                style={{
+                  width: statIconSize,
+                  height: statIconSize,
+                  resizeMode: "contain",
+                }}
+                source={require("../images/Accuaraacy.png")}
+              />
+              <Text style={styles.boldText}>
+                {playerinfo.overview.accuracy}
+              </Text>
+            </View>
+            <View style={styles.statBox}>
+              <Image
+                style={{
+                  width: statIconSize,
+                  height: statIconSize,
+                  resizeMode: "contain",
+                }}
+                source={require("../images/wins_image.png")}
+              />
+              <Text style={styles.boldText}>{playerinfo.overview.winRate}</Text>
+            </View>
           </View>
           <View style={styles.selectorContainer}>
             <Pressable
@@ -366,7 +405,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start", // matches "left" alignment above
   },
   selectorContainer: {
-    transform: [{translateY: -20}],
+    transform: [{ translateY: -20 }],
     flexDirection: "row",
     backgroundColor: colors.card,
     borderRadius: 8,
@@ -397,6 +436,10 @@ const styles = StyleSheet.create({
   },
   text_test: {
     color: colors.textPrimary,
+  },
+  statBox: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 // rnfes
