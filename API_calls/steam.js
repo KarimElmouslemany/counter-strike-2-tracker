@@ -81,6 +81,7 @@ const playerInfo = {
   },
   Player_recent_statices: {},
   Ranks_maps: [],
+  Recent_matchs: [],
   meta: {
     steamId: "",
     User_profile_name: "",
