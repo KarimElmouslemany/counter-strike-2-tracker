@@ -21,14 +21,16 @@ import { useWindowDimensions } from "react-native";
 
 const Home = () => {
   const { width } = useWindowDimensions();
-  const rankIconSize = width * 0.3;
+  const rankWidth = Math.min(Math.max(width * 0.34, 120), 165);
+  const rankHeight = Math.min(Math.max(width * 0.11, 42), 60);
   const statIconSize = Math.min(Math.max(width * 0.1, 32), 50);
+  const tableHeaderSize = Math.min(Math.max(width * 0.035, 12), 16);
   const [playerinfo, getplayer_info] = useState(null); // varaibles to hold data
   const [showAllTime, setShowAllTime] = useState(true);
   const [showWeapons, setShowWeapons] = useState(true);
   useFocusEffect(
     React.useCallback(() => {
-      console.log("this is what playerInfo has:: ", playerInfo);
+      // console.log("this is what playerInfo has:: ", playerInfo);
 
       getplayer_info({ ...playerInfo });
     }, []),
@@ -45,14 +47,42 @@ const Home = () => {
   } else {
     let listheading = "";
     let listdata;
+
+    let recent_matches = playerinfo.Recent_matchs;
+    // recent_matches.forEach(element => {
+    //   console.log("this the match ID: " ,element.Match_ID);
+    // });
     if (showWeapons == true) {
       listdata = playerinfo.weapons;
       listheading = (
         <View style={styles.headerRow}>
-          <Text style={styles.headerWeapon}>Weapons</Text>
-          <Text style={styles.headerStat}>Kills</Text>
-          <Text style={styles.headerStat}>Accuracy</Text>
-          <Text style={styles.headerStat}>KillShare</Text>
+          <Text
+            style={styles.headerWeapon}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            Weapons
+          </Text>
+          <Text
+            style={[styles.headerStat, { fontSize: tableHeaderSize }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            Kills
+          </Text>
+          <Text style={[styles.headerStat, { fontSize: tableHeaderSize }]}>
+            Accuracy
+          </Text>
+          <Text
+            style={[styles.headerStat, { fontSize: tableHeaderSize }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            KillShare
+          </Text>
         </View>
       );
     } else {
@@ -60,22 +90,38 @@ const Home = () => {
       listheading = (
         <View style={styles.headerRow}>
           <Text style={styles.headerImageCol}>Map</Text>
-          <Text style={styles.headerStat}>Rounds</Text>
-          <Text style={styles.headerStat}>Wins</Text>
-          <Text style={styles.headerStat}>Win Rate</Text>
+          <Text
+            style={[styles.headerStat, { fontSize: tableHeaderSize }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            Rounds
+          </Text>
+          <Text
+            style={[styles.headerStat, { fontSize: tableHeaderSize }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            Wins
+          </Text>
+          <Text
+            style={[styles.headerStat, { fontSize: tableHeaderSize }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            Win Rate
+          </Text>
         </View>
       );
     }
-    console.log("playerinfo.overview specifically:", playerinfo.overview);
-    console.log(playerinfo.ranks.premier_image);
+    //console.log("playerinfo.overview specifically:", playerinfo.overview);
+    //console.log(playerinfo.ranks.premier_image);
     if (showAllTime == true) {
       return (
         <SafeAreaView style={styles.Container} edges={["top", "left", "right"]}>
-          <Button
-            title={textbutton}
-            value={showAllTime}
-            onPress={() => setShowAllTime(!showAllTime)}
-          />
           <View style={styles.profileRow}>
             <View style={styles.Profile_Container}>
               <Image
@@ -90,148 +136,187 @@ const Home = () => {
               <View style={styles.rankBox}>
                 <Text style={styles.text}>Current Rank</Text>
                 <SvgUri
-                  width="95%"
-                  height="75%"
+                  width={rankWidth}
+                  height={rankHeight}
                   uri={playerinfo.ranks.premier_image_curent}
                 ></SvgUri>
               </View>
               <View style={styles.rankBox}>
                 <Text style={styles.text}>Peak Rank</Text>
                 <SvgUri
-                  width="95%"
-                  height="75%"
+                  width={rankWidth}
+                  height={rankHeight}
                   uri={playerInfo.ranks.premier_image_peak}
                 ></SvgUri>
               </View>
             </View>
           </View>
-          <View style={styles.ContainerPlayerInfo}>
-            <View style={styles.statBox}>
-              <Image
-                style={{
-                  width: statIconSize,
-                  height: statIconSize,
-                  resizeMode: "contain",
-                }}
-                source={require("../images/headshot.png")}
-              />
-              <Text style={styles.boldText}>
-                {playerinfo.overview.headshotPercent}
-              </Text>
+          <ScrollView>
+            <View style={styles.ContainerPlayerInfo}>
+              <View style={styles.statBox}>
+                <Image
+                  style={{
+                    width: statIconSize,
+                    height: statIconSize,
+                    resizeMode: "contain",
+                  }}
+                  source={require("../images/headshot.png")}
+                />
+                <Text style={styles.boldText}>
+                  {playerinfo.overview.headshotPercent}
+                </Text>
+              </View>
+              <View style={styles.statBox}>
+                <Image
+                  style={{
+                    width: statIconSize,
+                    height: statIconSize,
+                    resizeMode: "contain",
+                  }}
+                  source={require("../images/KD_ratio.png")}
+                />
+                <Text style={styles.boldText}>
+                  {playerinfo.overview.kdRatio}
+                </Text>
+              </View>
+              <View style={styles.statBox}>
+                <Image
+                  style={{
+                    width: statIconSize,
+                    height: statIconSize,
+                    resizeMode: "contain",
+                  }}
+                  source={require("../images/Accuaraacy.png")}
+                />
+                <Text style={styles.boldText}>
+                  {playerinfo.overview.accuracy}
+                </Text>
+              </View>
+              <View style={styles.statBox}>
+                <Image
+                  style={{
+                    width: statIconSize,
+                    height: statIconSize,
+                    resizeMode: "contain",
+                  }}
+                  source={require("../images/wins_image.png")}
+                />
+                <Text style={styles.boldText}>
+                  {playerinfo.overview.winRate}
+                </Text>
+              </View>
             </View>
-            <View style={styles.statBox}>
-              <Image
-                style={{
-                  width: statIconSize,
-                  height: statIconSize,
-                  resizeMode: "contain",
-                }}
-                source={require("../images/KD_ratio.png")}
-              />
-              <Text style={styles.boldText}>{playerinfo.overview.kdRatio}</Text>
+            <View style={styles.recentMatchesContainer}>
+              {recent_matches.slice(0, 3).map((iteam) => (
+                <View style={styles.Matchrecent} key={iteam.Match_ID}>
+                  <Image
+                    style={styles.matchBackground}
+                    source={{ uri: iteam.Map_name_image }}
+                  />
+                  <View style={styles.matchOverlay}></View>
+                  <View style={styles.matchContent}>
+                    <Text style={styles.rankTypeText}>{iteam.rank_type}</Text>
+                    <Text style={styles.mapNameText}>{iteam.Map_name}</Text>
+                    <Text style={styles.outcomeText}>{iteam.outcome}</Text>
+                    <Text style={styles.finishedText}>{iteam.Finshed}</Text>
+                    <SvgUri
+                      style={
+                        iteam.checker
+                          ? styles.competitiveRankImage
+                          : styles.premierRankImage
+                      }
+                      width={iteam.checker ? "40%" : "40%"}
+                      height={iteam.checker ? "50%" : "50%"}
+                      uri={iteam.Rank}
+                    ></SvgUri>
+                  </View>
+                </View>
+              ))}
             </View>
-            <View style={styles.statBox}>
-              <Image
-                style={{
-                  width: statIconSize,
-                  height: statIconSize,
-                  resizeMode: "contain",
-                }}
-                source={require("../images/Accuaraacy.png")}
-              />
-              <Text style={styles.boldText}>
-                {playerinfo.overview.accuracy}
-              </Text>
-            </View>
-            <View style={styles.statBox}>
-              <Image
-                style={{
-                  width: statIconSize,
-                  height: statIconSize,
-                  resizeMode: "contain",
-                }}
-                source={require("../images/wins_image.png")}
-              />
-              <Text style={styles.boldText}>{playerinfo.overview.winRate}</Text>
-            </View>
-          </View>
-          <View style={styles.selectorContainer}>
-            <Pressable
-              onPress={() => setShowWeapons(true)}
-              style={[
-                styles.selectorButton,
-                showWeapons && styles.selectorButtonActive,
-              ]}
-            >
-              <Text style={styles.text_test}>Weapons</Text>
-            </Pressable>
 
-            <Pressable
-              onPress={() => setShowWeapons(false)}
-              style={[
-                styles.selectorButton,
-                !showWeapons && styles.selectorButtonActive,
-              ]}
-            >
-              <Text style={styles.text_test}>Maps</Text>
-            </Pressable>
-          </View>
-          {listheading}
-          <FlatList
-            keyExtractor={(item) => item.id}
-            data={listdata}
-            renderItem={({ item }) => {
-              if (showWeapons == true) {
-                let imagesource;
+            {/* <Text>{playerinfo.Recent_matchs[0].rank_type_name}</Text> */}
 
-                if (item.name === "Knife") {
-                  imagesource = require("../images/Knife_cs2.png");
+            <View style={styles.selectorContainer}>
+              <Pressable
+                onPress={() => setShowWeapons(true)}
+                style={[
+                  styles.selectorButton,
+                  showWeapons && styles.selectorButtonActive,
+                ]}
+              >
+                <Text style={styles.text_test}>Weapons</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setShowWeapons(false)}
+                style={[
+                  styles.selectorButton,
+                  !showWeapons && styles.selectorButtonActive,
+                ]}
+              >
+                <Text style={styles.text_test}>Maps</Text>
+              </Pressable>
+            </View>
+            {listheading}
+            <FlatList
+              scrollEnabled={false}
+              keyExtractor={(item) => item.id}
+              data={listdata}
+              renderItem={({ item }) => {
+                if (showWeapons == true) {
+                  let imagesource;
+
+                  if (item.name === "Knife") {
+                    imagesource = require("../images/Knife_cs2.png");
+                  } else {
+                    imagesource = { uri: item.image_url };
+                  }
+
+                  return (
+                    <View style={styles.view_layout}>
+                      <View style={styles.nameSection}>
+                        <Image
+                          style={{
+                            width: 50,
+                            height: 50,
+                            borderRadius: 8,
+                          }}
+                          source={imagesource}
+                        />
+
+                        <Text style={styles.Text_style_wepones}>
+                          {item.name}
+                        </Text>
+                      </View>
+
+                      <Text style={styles.statValue}>{item.Kills}</Text>
+                      <Text style={styles.statValue}>{item.accuracy}</Text>
+                      <Text style={styles.statValue}>{item.KillShare}</Text>
+                    </View>
+                  );
                 } else {
-                  imagesource = { uri: item.image_url };
+                  return (
+                    <View style={styles.view_layout}>
+                      <View style={styles.imageCol}>
+                        <Image
+                          style={{
+                            width: 70,
+                            height: 70,
+                            borderRadius: 8,
+                          }}
+                          source={{ uri: item.url_image }}
+                        />
+                      </View>
+
+                      <Text style={styles.statValue}>{item.rounds}</Text>
+                      <Text style={styles.statValue}>{item.wins}</Text>
+                      <Text style={styles.statValue}>{item.winRate}</Text>
+                    </View>
+                  );
                 }
-
-                return (
-                  <View style={styles.view_layout}>
-                    <View style={styles.nameSection}>
-                      <Image
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 8,
-                        }}
-                        source={imagesource}
-                      />
-
-                      <Text style={styles.Text_style_wepones}>{item.name}</Text>
-                    </View>
-
-                    <Text style={styles.statValue}>{item.Kills}</Text>
-                    <Text style={styles.statValue}>{item.accuracy}</Text>
-                    <Text style={styles.statValue}>{item.KillShare}</Text>
-                  </View>
-                );
-              } else {
-                return (
-                  <View style={styles.view_layout}>
-                    <View style={styles.imageCol}>
-                      <Image
-                        style={{
-                          width: 70,
-                          height: 70,
-                          borderRadius: 8,
-                        }}
-                        source={{ uri: item.url_image }}
-                      />
-                    </View>
-
-                    <Text style={styles.statValue}>{item.rounds}</Text>
-                    <Text style={styles.statValue}>{item.wins}</Text>
-                    <Text style={styles.statValue}>{item.winRate}</Text>
-                  </View>
-                );
-              }
-            }}
-          />
+              }}
+            />
+          </ScrollView>
         </SafeAreaView>
       );
     } else {
@@ -250,36 +335,52 @@ const Home = () => {
 export default Home;
 
 const styles = StyleSheet.create({
-  mapsSectionHeader: {
-    marginTop: 20,
-  },
   Container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  Matchrecent: {
+    width: "94%",
+    maxWidth: 700,
+    alignSelf: "center",
+    aspectRatio: 3.1,
+
+    marginBottom: 12,
+
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+
+    overflow: "hidden",
+    position: "relative",
   },
   profileRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+
     width: "100%",
-    paddingHorizontal: 8,
-    marginTop: "-20%",
+
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 14,
   },
   Profile_Container: {
     backgroundColor: colors.background,
+    flex: 1,
     alignItems: "center",
-    marginTop: "5%",
+    justifyContent: "center",
   },
   Profile_pic: {
-    marginHorizontal: 10,
+    width: "55%",
+    maxWidth: 150,
+    minWidth: 90,
     aspectRatio: 1,
-    marginTop: "5%",
-    width: "37%",
-    height: "37%",
+
     borderRadius: 999,
-    overflow: "hidden",
     borderWidth: 3,
     borderColor: "white",
+
     alignSelf: "center",
   },
   Profile_name: {
@@ -290,34 +391,45 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   innerContainerRanks: {
-    marginTop: "5%",
-    backgroundColor: colors.background,
-    flex: 1,
+    flex: 0.9,
+    maxWidth: 190,
+
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
-    padding: 8,
+
+    paddingHorizontal: 8,
+    gap: 10,
   },
   rankBox: {
     backgroundColor: colors.cardElevated,
-    width: "90%",
-    height: 75,
-    marginVertical: 5,
-    padding: 4,
+    width: "100%",
+    maxWidth: 190,
+    aspectRatio: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
   },
   ContainerPlayerInfo: {
     backgroundColor: colors.card,
-    height: "10%",
+
+    width: "94%",
+    maxWidth: 700,
+    alignSelf: "center",
+
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    transform: [{ translateY: -60 }],
+
+    paddingHorizontal: 10,
+    paddingVertical: 14,
+
+    borderRadius: 10,
+
+    marginTop: -12,
+    marginBottom: 24,
   },
   boldText: {
     fontWeight: "bold",
@@ -368,11 +480,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   headerStat: {
-    flex: 1, // matches statValue below
+    flex: 1,
     textAlign: "center",
     color: colors.textSecondary,
     fontWeight: "bold",
-    fontSize: 16,
+    paddingHorizontal: 2,
   },
   nameSection: {
     flex: 2, // must match headerWeapon
@@ -438,8 +550,105 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   statBox: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
+  },
+
+  // recent match desgin:
+  recentMatchesContainer: {
+    marginBottom: 20,
+  },
+  matchCard: {
+    borderRadius: 12,
+    overflow: "hidden",
+    minHeight: 110,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  matchBackground: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+
+  matchOverlay: {
+    flex: 1,
+    minHeight: 92,
+
+    backgroundColor: "rgba(8, 12, 18, 0.72)",
+
+    paddingHorizontal: "4%",
+    paddingVertical: 10,
+  },
+  matchContent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+
+    justifyContent: "space-between",
+    zIndex: 2,
+  },
+  rankTypeText: {
+    color: "#D5DAE2",
+    fontSize: 12,
+    fontWeight: "600",
+
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  mapNameText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "700",
+    marginTop: 2,
+
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+
+  outcomeText: {
+    color: "#F0F2F5",
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: 4,
+
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  finishedText: {
+    color: "#AAB2BF",
+    fontSize: 12,
+    marginTop: 4,
+
+    textShadowColor: "rgba(0, 0, 0, 0.9)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  competitiveRankImage: {
+    position: "absolute",
+    right: "3%",
+    top: 10,
+  },
+
+  premierRankImage: {
+    position: "absolute",
+    right: "3%",
+    top: 10,
   },
 });
 // rnfes
